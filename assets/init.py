@@ -67,7 +67,7 @@ class ServiceRun():
           print("Found Mongo host to backup : " + service + " (" + service_name + ")")
 
       # Backup database
-      for database in list_postgresql:
+      for database in list_mongo:
 
           cmd = 'mongodump --host ' + database['host']
 
