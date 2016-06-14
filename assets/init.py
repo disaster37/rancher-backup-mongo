@@ -73,7 +73,7 @@ class ServiceRun():
 
           path = BACKUP_DIR + '/' + database['name']
           os.system('mkdir -p ' + path)
-          os.system('rm ' + path + '/*')
+          os.system('rm -rf ' + path + '/*')
           cmd += " --out %s" % (path)
           os.system(cmd)
           print("We dump all databases and all collections for (" + database['name'] + ") in " + path)
