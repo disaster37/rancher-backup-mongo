@@ -13,37 +13,40 @@ BACKUP_DIR = '/backup/mongo'
 class ServiceRun():
 
 
-  def backup_duplicity_ftp(self, ftp_server, ftp_port, ftp_user, ftp_password, target_path, is_init=False):
+  def backup_duplicity(self, backend, target_path, full_backup_frequency, nb_full_backup_keep, nb_increment_backup_chain_keep, volume_size, is_init=False):
       global BACKUP_DIR
-      if ftp_server is None or ftp_server == "":
-          raise KeyError("You must set the ftp server")
-      if ftp_port is None:
-          raise KeyError("You must set the ftp port")
-      if ftp_user is None or ftp_user == "":
-          raise KeyError("You must set the ftp user")
-      if ftp_password is None or ftp_password == "":
-          raise KeyError("You must set the ftp password")
+      if backend is None or backend == "":
+          raise KeyError("You must set the target backend")
       if target_path is None or target_path == "":
           raise KeyError("You must set the target path")
+      if full_backup_frequency is None or full_backup_frequency == "":
+          raise KeyError("You must set the full backup frequency")
+      if nb_full_backup_keep is None or nb_full_backup_keep == "":
+          raise KeyError("You must set how many full backup you should to keep")
+      if nb_increment_backup_chain_keep is None or nb_increment_backup_chain_keep == "":
+          raise KeyError("You must set how many incremental chain with full backup you should to keep")
+      if volume_size is None or volume_size == "":
+          raise KeyError("You must set the volume size")
 
-      ftp = "ftp://%s@%s:%d%s" % (ftp_user, ftp_server, ftp_port, target_path)
-      cmd = "FTP_PASSWORD=%s duplicity " % (ftp_password)
+      backend = "%s%s" % (backend, target_path)
+      cmd = "duplicity"
 
       # First, we restore the last backup
       if is_init is True:
           print("Starting init the backup folder")
-          os.system(cmd + '--no-encryption ' + ftp + ' ' + BACKUP_DIR + '/')
+          os.system("%s --no-encryption %s %s" % (cmd, backend, BACKUP_DIR))
 
 
       else:
           # We backup on FTP
           print("Starting backup")
-          os.system(cmd + '--no-encryption --allow-source-mismatch --full-if-older-than 7D ' + BACKUP_DIR + ' ' + ftp)
+          os.system("%s --volsize %s --no-encryption --allow-source-mismatch --full-if-older-than %s %s %s" % (cmd, volume_size, full_backup_frequency, BACKUP_DIR, backend))
 
           # We clean old backup
           print("Starting cleanup")
-          os.system(cmd + 'remove-all-but-n-full 3 --force --allow-source-mismatch --no-encryption ' + ftp)
-          os.system(cmd + 'cleanup --force --no-encryption ' + ftp)
+          os.system("%s remove-all-but-n-full %s --force --allow-source-mismatch --no-encryption %s" % (cmd, nb_full_backup_keep, backend))
+          os.system("%s remove-all-inc-of-but-n-full %s --force --allow-source-mismatch --no-encryption %s" % (cmd, nb_increment_backup_chain_keep, backend))
+          os.system("%s cleanup --force --no-encryption %s" % (cmd, backend))
 
 
 
@@ -81,6 +84,6 @@ class ServiceRun():
 if __name__ == '__main__':
     service = ServiceRun()
 
-    service.backup_duplicity_ftp(os.getenv('FTP_SERVER'), os.getenv('FTP_PORT', 21), os.getenv('FTP_LOGIN'), os.getenv('FTP_PASSWORD'), os.getenv('FTP_TARGET_PATH', BACKUP_DIR), True)
+    service.backup_duplicity(os.getenv('TARGET_BACKEND'), os.getenv('TARGET_PATH', "/backup/postgres"),os.getenv('BK_FULL_FREQ', "7D"), os.getenv('BK_KEEP_FULL', "3"), os.getenv('BK_KEEP_FULL_CHAIN', "1"), os.getenv('VOLUME_SIZE', "25"), True)
     service.backup_mongo()
-    service.backup_duplicity_ftp(os.getenv('FTP_SERVER'), os.getenv('FTP_PORT', 21), os.getenv('FTP_LOGIN'), os.getenv('FTP_PASSWORD'), os.getenv('FTP_TARGET_PATH', BACKUP_DIR))
+    service.backup_duplicity(os.getenv('TARGET_BACKEND'), os.getenv('TARGET_PATH', "/backup/postgres"),os.getenv('BK_FULL_FREQ', "7D"), os.getenv('BK_KEEP_FULL', "3"), os.getenv('BK_KEEP_FULL_CHAIN', "1"), os.getenv('VOLUME_SIZE', "25"), True)
