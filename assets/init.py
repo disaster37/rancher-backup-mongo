@@ -86,4 +86,4 @@ if __name__ == '__main__':
 
     service.backup_duplicity(os.getenv('TARGET_BACKEND'), os.getenv('TARGET_PATH', "/backup/postgres"),os.getenv('BK_FULL_FREQ', "7D"), os.getenv('BK_KEEP_FULL', "3"), os.getenv('BK_KEEP_FULL_CHAIN', "1"), os.getenv('VOLUME_SIZE', "25"), True)
     service.backup_mongo()
-    service.backup_duplicity(os.getenv('TARGET_BACKEND'), os.getenv('TARGET_PATH', "/backup/postgres"),os.getenv('BK_FULL_FREQ', "7D"), os.getenv('BK_KEEP_FULL', "3"), os.getenv('BK_KEEP_FULL_CHAIN', "1"), os.getenv('VOLUME_SIZE', "25"), True)
+    service.backup_duplicity(os.getenv('TARGET_BACKEND'), os.getenv('TARGET_PATH', "/backup/postgres"),os.getenv('BK_FULL_FREQ', "7D"), os.getenv('BK_KEEP_FULL', "3"), os.getenv('BK_KEEP_FULL_CHAIN', "1"), os.getenv('VOLUME_SIZE', "25"))
